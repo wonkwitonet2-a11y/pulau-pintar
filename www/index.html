@@ -81,7 +81,10 @@ function curP(){return S.P.filter(function(p){return p.id===S.cur})[0]}
 function useP(p){S.cur=p.id;S.age=p.age;S.stars=p.stars}
 var cp0=curP();if(cp0)useP(cp0);
 function save(){try{localStorage.setItem("pp2",JSON.stringify({P:S.P,cur:S.cur,limit:S.limit,used:S.used}))}catch(e){}}
-function say(t,l){if(!S.sound)return;try{speechSynthesis.cancel();var u=new SpeechSynthesisUtterance(t);l=l||"id-ID";u.lang=l;u.rate=.85;u.pitch=1.2;var v=speechSynthesis.getVoices().filter(function(x){return x.lang.replace("_","-").indexOf(l.slice(0,2))===0});if(v.length){var f=v.filter(function(x){return /female|google|natural/i.test(x.name)});u.voice=f[0]||v[0]}speechSynthesis.speak(u)}catch(e){}}
+var NT=null;
+function nativeTTS(){if(NT===null){NT=false;try{var C=window.Capacitor;if(C&&C.isNativePlatform&&C.isNativePlatform())NT=C.Plugins.TextToSpeech||C.registerPlugin("TextToSpeech")}catch(e){}}return NT}
+function stopSay(){try{var T=nativeTTS();if(T)T.stop();else speechSynthesis.cancel()}catch(e){}}
+function say(t,l){if(!S.sound)return;l=l||"id-ID";var T=nativeTTS();if(T){try{T.stop();T.speak({text:t,lang:l,rate:.85,pitch:1.2,volume:1,category:"ambient"}).catch(function(){})}catch(e){}return}try{speechSynthesis.cancel();var u=new SpeechSynthesisUtterance(t);u.lang=l;u.rate=.85;u.pitch=1.2;var v=speechSynthesis.getVoices().filter(function(x){return x.lang.replace("_","-").indexOf(l.slice(0,2))===0});if(v.length){var f=v.filter(function(x){return /female|google|natural/i.test(x.name)});u.voice=f[0]||v[0]}speechSynthesis.speak(u)}catch(e){}}
 function rnd(a,b){return a+Math.floor(Math.random()*(b-a+1))}
 function pick(a){return a[rnd(0,a.length-1)]}
 function shuf(a){return a.sort(function(){return Math.random()-.5})}
@@ -118,7 +121,7 @@ function getStars(k){return S.stars[S.age+":"+k]||0}
 var $=function(s){return document.querySelector(s)};
 var app=$("#app");
 function bar(back){return '<div class="bar">'+(back?'<button id="bk" aria-label="Kembali">⬅</button>':'<span></span>')+'<span class="chip">'+(S.age!==null?(curP()?curP().av:AGES[S.age].e)+" "+AGES[S.age].n:"")+'</span><button id="snd" aria-label="Suara">'+(S.sound?"🔊":"🔇")+'</button></div>'}
-function wire(back){var s=$("#snd");if(s)s.onclick=function(){S.sound=!S.sound;s.textContent=S.sound?"🔊":"🔇";if(!S.sound)try{speechSynthesis.cancel()}catch(e){}};var b=$("#bk");if(b)b.onclick=back}
+function wire(back){var s=$("#snd");if(s)s.onclick=function(){S.sound=!S.sound;s.textContent=S.sound?"🔊":"🔇";if(!S.sound)stopSay()};var b=$("#bk");if(b)b.onclick=back}
 function mascot(msg){return '<div class="mascot"><span class="m">🐱</span><p>'+msg+'</p></div>'}
 
 /* ---- Pilih usia ---- */
