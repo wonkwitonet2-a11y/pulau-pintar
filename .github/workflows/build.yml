@@ -17,9 +17,9 @@ jobs:
           distribution: temurin
           java-version: 21
       - run: npm install
-      - run: python3 tools/make_icons.py
       - run: python3 tools/bundle_font.py
       - run: npx cap add android
+      - run: python3 tools/android_icons.py
       - run: npx cap sync android
       - run: ./gradlew assembleDebug
         working-directory: android
@@ -39,7 +39,6 @@ jobs:
       url: ${{ steps.deploy.outputs.page_url }}
     steps:
       - uses: actions/checkout@v4
-      - run: python3 tools/make_icons.py
       - run: python3 tools/bundle_font.py
       - uses: actions/configure-pages@v5
       - uses: actions/upload-pages-artifact@v3
